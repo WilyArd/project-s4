@@ -1,3 +1,5 @@
+Dockerfile:
+##########################################################
 
 FROM php:8.3-fpm
 
@@ -28,3 +30,6 @@ EXPOSE 9000
 
 # Start PHP-FPM
 CMD ["php-fpm"]
+##########################################################
+
+Buat "Laravel new backend" di terminal, lalu buat file Dockerfile didalam folder backend

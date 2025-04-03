@@ -3,6 +3,9 @@ version: '3.9'
 networks:
   laravel:
 
+volumes:
+  postgres_data:   # Ensure PostgreSQL volume is defined
+
 services:
   php:
     container_name: php-8.3
@@ -18,14 +21,15 @@ services:
     networks:
       - laravel
     depends_on:
-      - db
+      db:
+        condition: service_healthy  
     environment:
+      DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: mydatabase
-      DB_USER: admin
+      DB_DATABASE: mydatabase  
+      DB_USERNAME: admin  
       DB_PASSWORD: admin123
-    
 
   db:
     container_name: postgres
@@ -34,13 +38,18 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./docker/postgres:/var/lib/postgresql/data 
+      - postgres_data:/var/lib/postgresql/data 
     networks:
       - laravel
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: mydatabase
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U admin -d mydatabase"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
   nginx:
     container_name: nginx
@@ -54,4 +63,3 @@ services:
       - laravel
     depends_on:
       - php
-
